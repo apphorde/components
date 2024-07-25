@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+    />
+    <title>CaaS</title>
+  </head>
+  <body>
+    <div class="page flex p-8">
+      <div class="editor w-1/2 bg-gray-200"></div>
+      <div class="preview w-1/2 flex items-center justify-center">
+        <div id="preview"></div>
+      </div>
+    </div>
+    <script type="module">
+      import { load, install } from "https://codemirror.jsfn.run/index.mjs";
+
+      function debounce(fn, time = 200) {
+        let t = 0;
+        return (...args) => {
+          clearTimeout(t);
+          t = setTimeout(() => fn(...args), time);
+        };
+      }
+
+      async function main() {
+        await load();
+        await install("", {
+          target: ".editor",
+          name: "editor",
+          lineNumbers: true,
+          language: "javascript",
+        });
+
+        window.editor.on("change", debounce(updateContent));
+      }
+
+      async function updateContent() {
+        preview.innerHTML = window.editor.getValue();
+      }
+
+      main();
+    </script>
+  </body>
+</html>
