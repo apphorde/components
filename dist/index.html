@@ -36,11 +36,12 @@
           language: "javascript",
         });
 
-        window.editor.on("change", debounce(updateContent));
-      }
+        const editor = await getEditor("editor");
+        editor.on("change", debounce(updateContent));
 
-      async function updateContent() {
-        preview.innerHTML = window.editor.getValue();
+        async function updateContent() {
+          preview.innerHTML = editor.getValue();
+        }
       }
 
       main();
