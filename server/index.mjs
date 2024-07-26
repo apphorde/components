@@ -21,7 +21,7 @@ export default async function (request, response, next) {
   ${js}
 
   const template = document.createElement('template');
-  template.innerHTML = '${JSON.stringify(html)}'.trim();
+  template.innerHTML = ${JSON.stringify(html)}.trim();
   template.normalize();
 
   customElements.get('${name}') || customElements.define('${name}', class extends HTMLElement {
