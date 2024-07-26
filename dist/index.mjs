@@ -25,6 +25,14 @@ function onCopyEmbed() {
   );
 }
 
+async function onComponentNameChange() {
+  state.fileContent.name = componentName.value;
+  state.fileMetadata[state.fileId] ||= {};
+  state.fileMetadata[state.fileId].name = componentName.value;
+  await onContentChange();
+  updateFileSelector();
+}
+
 async function onSelectFile() {
   const value = fileSelector.options[fileSelector.selectedIndex].value;
   state.fileId = value;
@@ -187,7 +195,7 @@ async function main() {
   fileSelector.onchange = onSelectFile;
   componentUrl.onclick = onCopyUrl;
   componentEmbed.onclick = onCopyEmbed;
-  componentName.onchange = onContentChange;
+  componentName.onchange = onComponentNameChange;
 
   AuthApi.events.addEventListener("signin", updateAuth);
   AuthApi.events.addEventListener("signout", updateAuth);
