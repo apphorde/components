@@ -8,7 +8,7 @@ export default async function (request, response, next) {
     return next();
   }
 
-  const file = await fetch(`https://file.api.apphor.de/f/${binId}/${fileId}`);
+  const file = await fetch(`https://file.api.apphor.de/f/${binId}/${fileId.replace('.mjs', '')}`);
   if (!file.ok) {
     return next();
   }

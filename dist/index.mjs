@@ -13,6 +13,10 @@ window.state = state;
 
 let htmlEditor, jsEditor;
 
+function onCopyUrl() {
+  navigator.clipboard.writeText(componentUrl.innerText.trim());
+}
+
 async function onSelectFile() {
   const value = fileSelector.options[fileSelector.selectedIndex].value;
   state.fileId = value;
@@ -147,6 +151,7 @@ async function main() {
   auth.onclick = onSignInOrOut;
   addFile.onclick = onAddFile;
   fileSelector.onchange = onSelectFile;
+  componentUrl.onclick = onCopyUrl;
 
   await load();
   await install("", {

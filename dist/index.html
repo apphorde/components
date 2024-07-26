@@ -24,7 +24,7 @@
       </header>
       <article class="flex flex-grow">
         <section class="editor w-1/2 border-r flex flex-col">
-          <div class="editor-html h-1/2 relative">
+          <div class="editor-html h-1/2 relative border-b">
             <div class="absolute top-0 right-0 p-1 z-10 bg-gray-100 text-xs">HTML</div>
             <div class="editor h-full"></div>
           </div>
@@ -34,8 +34,8 @@
           </div>
         </section>
         <section class="preview w-1/2 flex flex-col">
-          <div id="componentUrl" class="p-2 border-b bg-gray-100"></div>
-          <div class="flex items-center justify-center">
+          <button title="Click to copy" id="componentUrl" class="p-2 border-b bg-gray-100 truncate cursor-pointer text-sm"></button>
+          <div class="flex items-center justify-center flex-grow">
             <div id="preview"></div>
           </div>
         </section>
