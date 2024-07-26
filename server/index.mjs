@@ -1,9 +1,9 @@
 export default async function (request, response, next) {
-  if (!request.url.startsWith("/s/")) {
+  if (!request.url.startsWith("/c/")) {
     return next();
   }
 
-  const [binId, fileId] = request.url.replace("/s/", "").split("/");
+  const [binId, fileId] = request.url.replace("/c/", "").split("/");
   if (!(binId && fileId)) {
     return next();
   }
@@ -22,8 +22,10 @@ export default async function (request, response, next) {
   const moduleSource = `
 import { createTemplate, defineComponent } from 'https://c.apphor.de/lib.mjs';
 const template = createTemplate(${JSON.stringify(html)});
-${js}
 const __cmp__ = { template };
+
+${js}
+
 if (typeof shadowOptions !== 'undefined') __cmp__.shadow = shadowOptions;
 if (typeof onInit !== 'undefined') __cmp__.init = onInit;
 if (typeof onChange !== 'undefined') __cmp__.change = onChange;

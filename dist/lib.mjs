@@ -8,11 +8,13 @@ export function createTemplate(html) {
 export function defineComponent(name, options) {
   if (customElements.get(name)) return;
 
+  const templateContent = options.template.content;
+
   customElements.define(
     name,
     class extends HTMLElement {
       connectedCallback() {
-        const tpl = template.content.cloneNode(true);
+        const tpl = templateContent.cloneNode(true);
 
         if (options.shadow) {
           const shadow = this.attachShadow(options.shadow);

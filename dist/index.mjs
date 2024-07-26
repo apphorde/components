@@ -85,7 +85,7 @@ async function updateAuth() {
 
 function updateFileSelector() {
   fileSelector.innerHTML =
-    `<option value="">-- Select project --</option>` +
+    `<option value="">-- Select component --</option>` +
     state.fileList
       .map(
         (f) =>
