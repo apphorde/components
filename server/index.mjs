@@ -20,10 +20,9 @@ export default async function (request, response, next) {
   const moduleSource = `
 import { createTemplate, defineComponent } from 'https://c.apphor.de/lib.mjs';
 const template = createTemplate(${JSON.stringify(html)});
-
 const __cmp__ = { template };
 
-function __wrapper__($component, $, $$) {
+function __wrapper__({ $, $$, $emit }) {
 
   ${js}
 
