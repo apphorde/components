@@ -19,6 +19,8 @@ let state = {
 
 let editor;
 
+window.state = state;
+
 async function onAddFile() {
   const file = await FileApi.createFile(state.binId);
   state.fileId = file.fileId;
@@ -115,10 +117,9 @@ async function updateFileList() {
   state.fileList = [];
 
   if (state.isAuth && state.binId) {
-    const list = await FileApi.listFiles(state.binId);
+    state.fileList = await FileApi.listFiles(state.binId);
   }
 
-  console.log(list);
   updateFileSelector();
 }
 
