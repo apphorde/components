@@ -1,1 +1,6 @@
-{"name": "apphorde-components"}
+{
+  "name": "apphorde-components",
+  "scripts": {
+    "ci": "echo true"
+  }
+}
