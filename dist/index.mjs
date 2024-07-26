@@ -42,7 +42,7 @@ async function onSignInOrOut() {
 }
 
 async function onContentChange() {
-  await FileApi.writeFile(state.binId, state.fileId, value);
+  await FileApi.writeFile(state.binId, state.fileId, editor.getValue());
 }
 
 async function main() {
