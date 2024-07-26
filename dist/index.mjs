@@ -2,16 +2,15 @@ import { load, install } from "https://codemirror.jsfn.run/index.mjs";
 import * as FileApi from "https://file.api.apphor.de/index.mjs";
 import * as AuthApi from "https://auth.api.apphor.de/index.mjs";
 
-let state = {
+const initialState = () => ({
   binId: "",
   fileId: location.hash || "",
   fileContent: { js: "", css: "", name: "" },
   fileList: [],
   fileMetadata: {},
-};
+});
 
-window.state = state;
-
+let state = initialState();
 let htmlEditor, jsEditor;
 
 function onCopyUrl() {
@@ -44,14 +43,14 @@ async function onSignInOrOut() {
 
   if (isAuth) {
     await AuthApi.signOut();
+    state = initialState();
     jsEditor.setValue("");
     htmlEditor.setValue("");
     updatePreview();
+    updateFileSelector();
   } else {
     await AuthApi.signIn(true);
   }
-
-  updateAuth();
 }
 
 async function onContentChange() {
@@ -88,7 +87,10 @@ async function updateAuth() {
     }
 
     userName.innerText = state.profile.name || state.profile.email;
+    return;
   }
+
+  userName.innerHTML = `<span class="inline-block w-32 h-8 bg-gray-200 rounded-full">&nbsp;</span>`;
 }
 
 function updateFileSelector() {
@@ -181,6 +183,9 @@ async function main() {
   componentUrl.onclick = onCopyUrl;
   componentEmbed.onclick = onCopyEmbed;
   componentName.onchange = onContentChange;
+
+  AuthApi.events.addEventListener('signin', updateAuth);
+  AuthApi.events.addEventListener('signout', updateAuth);
 
   await load();
   await install("", {
