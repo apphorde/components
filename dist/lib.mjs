@@ -13,7 +13,7 @@ function createHelpers(target) {
   return { $, $$, $emit };
 }
 
-export function defineComponent(name, options, wrapper) {
+export function defineComponent(name, options) {
   if (customElements.get(name)) return;
 
   const templateContent = options.template.content;
@@ -42,8 +42,6 @@ export function defineComponent(name, options, wrapper) {
             this.appendChild(tmp);
           }
         }
-
-        wrapper.call(this, createHelpers(this));
 
         if (options.init) {
           options.init.apply(this);
