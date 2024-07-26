@@ -14,7 +14,11 @@ window.state = state;
 let htmlEditor, jsEditor;
 
 function onCopyUrl() {
-  navigator.clipboard.writeText(componentUrl.innerText.trim());
+  navigator.clipboard.writeText(`https://${location.host}/s/${state.binId}/${state.fileId}.mjs`);
+}
+
+function onCopyEmbed() {
+  navigator.clipboard.writeText(`<script type="module" src="https://${location.host}/s/${state.binId}/${state.fileId}.mjs"></script>`);
 }
 
 async function onSelectFile() {
@@ -58,7 +62,6 @@ async function updatePreview() {
   const value = htmlEditor.getValue();
   preview.innerHTML = value;
   state.fileContent = value;
-  componentUrl.innerText = `https://${location.host}/s/${state.binId}/${state.fileId}.mjs`;
 }
 
 async function updateAuth() {
@@ -152,6 +155,7 @@ async function main() {
   addFile.onclick = onAddFile;
   fileSelector.onchange = onSelectFile;
   componentUrl.onclick = onCopyUrl;
+  componentEmbed.onclick = onCopyEmbed;
 
   await load();
   await install("", {
