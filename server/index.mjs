@@ -20,8 +20,16 @@ export default async function (request, response, next) {
   const moduleSource = `
   ${js}
 
+  const template = document.createElement('template');
+  template.innerHTML = '${JSON.stringify(html)}'.trim();
+  template.normalize();
+
   customElements.get('${name}') || customElements.define('${name}', class extends HTMLElement {
     connectedCallback() {
+      const tpl = template.content.cloneNode(true);
+      const shadow = this.attachShadow({mode: 'open'});
+      shadow.appendChild(tpl);
+
       if (typeof onInit !== 'undefined') {
         onInit.apply(this);
       }
