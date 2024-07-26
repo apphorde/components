@@ -20,15 +20,20 @@ export default async function (request, response, next) {
   const moduleSource = `
 import { createTemplate, defineComponent } from 'https://c.apphor.de/lib.mjs';
 const template = createTemplate(${JSON.stringify(html)});
+
 const __cmp__ = { template };
 
-${js}
+function __wrapper__($component, $, $$) {
 
-if (typeof shadowOptions !== 'undefined') __cmp__.shadow = shadowOptions;
-if (typeof onInit !== 'undefined') __cmp__.init = onInit;
-if (typeof onChange !== 'undefined') __cmp__.change = onChange;
-if (typeof onDestroy !== 'undefined') __cmp__.destroy = onDestroy;
-defineComponent('${name}', __cmp__);`;
+  ${js}
+
+  if (typeof shadowOptions !== 'undefined') __cmp__.shadow = shadowOptions;
+  if (typeof onInit !== 'undefined') __cmp__.init = onInit;
+  if (typeof onChange !== 'undefined') __cmp__.change = onChange;
+  if (typeof onDestroy !== 'undefined') __cmp__.destroy = onDestroy;
+}
+
+defineComponent('${name}', __cmp__, __wrapper__);`;
 
   response.setHeader("Content-Type", "application/javascript");
   response.setHeader("Cache-control", "max-age=86400");

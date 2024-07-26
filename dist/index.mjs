@@ -218,9 +218,11 @@ async function main() {
   jsEditor = await getEditor("jsEditor");
   htmlEditor = await getEditor("htmlEditor");
 
+  const autoSave = debounce(onContentChange, 1000);
+
   [jsEditor, htmlEditor].forEach((editor) => {
     editor.on("change", debounce(updatePreview));
-    editor.on("change", debounce(onContentChange, 1000));
+    editor.on("change", autoSave);
   });
 
   updateAuth();

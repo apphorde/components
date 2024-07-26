@@ -5,7 +5,15 @@ export function createTemplate(html) {
   return template;
 }
 
-export function defineComponent(name, options) {
+function createHelpers(target) {
+  const $ = (s) => target.querySelector(s)
+  const $$ = (s) => target.querySelectorAll(s)
+  const $emit = (event, options) => target.dispatchEvent(new CustomEvent(event, options));
+
+  return { $, $$, $emit };
+}
+
+export function defineComponent(name, options, wrapper) {
   if (customElements.get(name)) return;
 
   const templateContent = options.template.content;
@@ -34,6 +42,8 @@ export function defineComponent(name, options) {
             this.appendChild(tmp);
           }
         }
+
+        wrapper.call(this, createHelpers(this));
 
         if (options.init) {
           options.init.apply(this);
