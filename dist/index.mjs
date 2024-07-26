@@ -16,13 +16,14 @@ window.state = state;
 async function onSelectFile() {
   const value = fileSelector.options[fileSelector.selectedIndex].value;
   state.fileId = value;
-  updateFileContent();
+  await updateFileContent();
 }
 
 async function onAddFile() {
   const file = await FileApi.createFile(state.binId);
   state.fileId = file.fileId;
   await updateFileList();
+  await updateFileContent();
 }
 
 async function onSignInOrOut() {
