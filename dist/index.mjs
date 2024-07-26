@@ -2,14 +2,6 @@ import { load, install } from "https://codemirror.jsfn.run/index.mjs";
 import * as FileApi from "https://file.api.apphor.de/index.mjs";
 import * as AuthApi from "https://auth.api.apphor.de/index.mjs";
 
-function debounce(fn, time = 200) {
-  let t = 0;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), time);
-  };
-}
-
 let state = {
   binId: "",
   fileId: location.hash || "",
@@ -42,7 +34,9 @@ async function onSignInOrOut() {
 }
 
 async function onContentChange() {
-  await FileApi.writeFile(state.binId, state.fileId, editor.getValue());
+  if (state.binId && state.fileId) {
+    await FileApi.writeFile(state.binId, state.fileId, editor.getValue());
+  }
 }
 
 async function main() {
@@ -90,13 +84,12 @@ async function updateAuth() {
 }
 
 function updateFileSelector() {
-  fileSelector.innerHTML = state.fileList
+  fileSelector.innerHTML = `<option value="">-- Select project --</option>` + state.fileList
     .map((f) => `<option value="${f}">${f}</option>`)
     .join("");
 
   fileSelector.onchange = () => {
     const value = fileSelector.options[fileSelector.selectedIndex].value;
-    console.log(value);
     state.fileId = value;
     updateFileContent();
   };
@@ -136,6 +129,14 @@ async function updateBinId() {
     state.binId = bin.binId;
     await AuthApi.setPropertyNS("binId", state.binId);
   }
+}
+
+function debounce(fn, time = 200) {
+  let t = 0;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), time);
+  };
 }
 
 main();
