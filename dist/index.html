@@ -30,37 +30,47 @@
           class="text-white bg-gray-400 border border-gray-400 rounded py-1 px-2 text-sm"
         ></button>
       </header>
+      <div
+        class="p-2 border-b bg-gray-100 text-xs flex items-center justify-between"
+      >
+        <input type="text" id="componentName" />
+      </div>
       <article class="flex flex-grow">
-        <section class="editor w-1/2 border-r flex flex-col">
-          <div class="editor-html h-1/2 relative border-b">
+        <section class="editor border-r flex sm:flex-col">
+          <div class="editor-html w-1/2 sm:w-full relative border-b">
             <div class="absolute top-0 right-0 p-1 z-10 bg-gray-100 text-xs">
               HTML
             </div>
             <div class="editor h-full"></div>
           </div>
-          <div class="editor-js h-1/2 relative">
+          <div class="editor-js w-1/2 sm:w-full relative">
             <div class="absolute top-0 right-0 p-1 z-10 bg-gray-100 text-xs">
               JS
             </div>
             <div class="editor h-full"></div>
           </div>
         </section>
-        <section class="preview w-1/2 flex flex-col">
-          <div class="p-2 border-b bg-gray-100 text-xs">
-            <button
-              title="Click to copy"
-              id="componentUrl"
-              class="border rounded-sm p-1"
-            >
-              Copy URL
-            </button>
-            <button
-              title="Click to copy"
-              id="componentEmbed"
-              class="border rounded-sm p-1"
-            >
-              Copy Embed
-            </button>
+        <section class="preview w-full flex flex-col">
+          <div
+            class="p-2 border-b bg-gray-100 text-xs flex items-center justify-between"
+          >
+            <div>&nbsp;</div>
+            <div>
+              <button
+                title="Click to copy"
+                id="componentUrl"
+                class="border rounded-sm p-1"
+              >
+                Copy URL
+              </button>
+              <button
+                title="Click to copy"
+                id="componentEmbed"
+                class="border rounded-sm p-1"
+              >
+                Copy Embed
+              </button>
+            </div>
           </div>
           <div class="flex items-center justify-center flex-grow">
             <div id="preview"></div>

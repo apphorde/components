@@ -15,9 +15,7 @@ export default async function (request, response, next) {
     return next();
   }
 
-  const source = await file.json();
-  const { js, html, meta = {} } = source;
-  const { name = "x-invalid" } = meta;
+  const { js, html, name = "" } = await file.json();
 
   const moduleSource = `
 import { createTemplate, defineComponent } from 'https://c.apphor.de/lib.mjs';

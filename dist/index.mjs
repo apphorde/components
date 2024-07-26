@@ -5,8 +5,9 @@ import * as AuthApi from "https://auth.api.apphor.de/index.mjs";
 let state = {
   binId: "",
   fileId: location.hash || "",
-  fileContent: "",
+  fileContent: { js: "", css: "", name: "" },
   fileList: [],
+  fileMetadata: {},
 };
 
 window.state = state;
@@ -14,11 +15,15 @@ window.state = state;
 let htmlEditor, jsEditor;
 
 function onCopyUrl() {
-  navigator.clipboard.writeText(`https://${location.host}/s/${state.binId}/${state.fileId}.mjs`);
+  navigator.clipboard.writeText(
+    `https://${location.host}/s/${state.binId}/${state.fileId}.mjs`
+  );
 }
 
 function onCopyEmbed() {
-  navigator.clipboard.writeText(`<script type="module" src="https://${location.host}/s/${state.binId}/${state.fileId}.mjs"></script>`);
+  navigator.clipboard.writeText(
+    `<script type="module" src="https://${location.host}/s/${state.binId}/${state.fileId}.mjs"></script>`
+  );
 }
 
 async function onSelectFile() {
@@ -50,18 +55,21 @@ async function onSignInOrOut() {
 
 async function onContentChange() {
   if (state.binId && state.fileId) {
+    const name = componentName.value;
     const content = JSON.stringify({
+      name,
       js: jsEditor.getValue(),
       html: htmlEditor.getValue(),
     });
+
     await FileApi.writeFile(state.binId, state.fileId, content);
+    await FileApi.writeMetadata(state.binId, state.fileId, { name });
   }
 }
 
 async function updatePreview() {
   const value = htmlEditor.getValue();
   preview.innerHTML = value;
-  state.fileContent = value;
 }
 
 async function updateAuth() {
@@ -89,9 +97,9 @@ function updateFileSelector() {
     state.fileList
       .map(
         (f) =>
-          `<option value="${f}" ${
-            (f === state.fileId && " selected") || ""
-          }>${f}</option>`
+          `<option value="${f}" ${(f === state.fileId && " selected") || ""}>${
+            state.fileMetadata[f]?.name ?? f
+          }</option>`
       )
       .join("");
 }
@@ -107,7 +115,7 @@ async function updateFileContent() {
     updateEditors();
   } catch (e) {
     console.log(e);
-    state.fileContent = { js: "", css: "" };
+    state.fileContent = { js: "", css: "", name: "" };
     // TODO editors are out of sync
   }
 }
@@ -120,13 +128,29 @@ function updateEditors() {
   if (htmlEditor.getValue() !== state.fileContent.html) {
     htmlEditor.setValue(state.fileContent.html);
   }
+
+  if (componentName.value !== state.fileContent.name) {
+    componentName.value = state.fileContent.name;
+  }
 }
 
 async function updateFileList() {
   state.fileList = [];
+  state.fileMetadata = {};
 
   if (state.isAuth && state.binId) {
     state.fileList = await FileApi.listFiles(state.binId);
+
+    const entries = await Promise.all(
+      state.fileList.map(async (fileId) => [
+        fileId,
+        await FileApi.readMetadata(state.binId, fileId).catch(() => ({
+          name: fileId,
+        })),
+      ])
+    );
+
+    state.fileMetadata = Object.fromEntries(entries);
   }
 
   updateFileSelector();
@@ -156,6 +180,7 @@ async function main() {
   fileSelector.onchange = onSelectFile;
   componentUrl.onclick = onCopyUrl;
   componentEmbed.onclick = onCopyEmbed;
+  componentName.onchange = onContentChange;
 
   await load();
   await install("", {
