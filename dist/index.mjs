@@ -41,6 +41,10 @@ async function onSignInOrOut() {
   updateAuth();
 }
 
+async function onContentChange() {
+  await FileApi.writeFile(state.binId, state.fileId, value);
+}
+
 async function main() {
   auth.onclick = onSignInOrOut;
   addFile.onclick = onAddFile;
@@ -55,6 +59,7 @@ async function main() {
 
   editor = await getEditor("editor");
   editor.on("change", debounce(updatePreview));
+  editor.on("change", debounce(onContentChange, 1000));
 
   updateAuth();
 }
