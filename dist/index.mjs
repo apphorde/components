@@ -9,9 +9,9 @@ let state = {
   fileList: [],
 };
 
-let editor;
-
 window.state = state;
+
+let htmlEditor, jsEditor;
 
 async function onSelectFile() {
   const value = fileSelector.options[fileSelector.selectedIndex].value;
@@ -42,14 +42,19 @@ async function onSignInOrOut() {
 
 async function onContentChange() {
   if (state.binId && state.fileId) {
-    await FileApi.writeFile(state.binId, state.fileId, editor.getValue());
+    const content = JSON.stringify({
+      js: jsEditor.getValue(),
+      html: htmlEditor.getValue(),
+    });
+    await FileApi.writeFile(state.binId, state.fileId, content);
   }
 }
 
 async function updatePreview() {
-  const value = editor.getValue();
+  const value = htmlEditor.getValue();
   preview.innerHTML = value;
   state.fileContent = value;
+  componentUrl.innerText = `https://${location.host}/s/${state.binId}/${state.fileId}.mjs`;
 }
 
 async function updateAuth() {
@@ -89,14 +94,24 @@ async function updateFileContent() {
 
   const req = await FileApi.readFile(state.binId, state.fileId);
   const content = await req.text();
-  state.fileContent = content;
 
-  updateEditor();
+  try {
+    state.fileContent = JSON.parse(content);
+    updateEditors();
+  } catch (e) {
+    console.log(e);
+    state.fileContent = { js: "", css: "" };
+    // TODO editors are out of sync
+  }
 }
 
-function updateEditor() {
-  if (editor.getValue() !== state.fileContent) {
-    editor.setValue(state.fileContent);
+function updateEditors() {
+  if (jsEditor.getValue() !== state.fileContent.js) {
+    jsEditor.setValue(state.fileContent.js);
+  }
+
+  if (htmlEditor.getValue() !== state.fileContent.html) {
+    htmlEditor.setValue(state.fileContent.html);
   }
 }
 
@@ -135,15 +150,26 @@ async function main() {
 
   await load();
   await install("", {
-    target: ".editor",
-    name: "editor",
+    target: ".editor-html .editor",
+    name: "htmlEditor",
+    lineNumbers: true,
+    language: "html",
+  });
+
+  await install("", {
+    target: ".editor-js .editor",
+    name: "jsEditor",
     lineNumbers: true,
     language: "javascript",
   });
 
-  editor = await getEditor("editor");
-  editor.on("change", debounce(updatePreview));
-  editor.on("change", debounce(onContentChange, 1000));
+  jsEditor = await getEditor("jsEditor");
+  htmlEditor = await getEditor("htmlEditor");
+
+  [jsEditor, htmlEditor].forEach((editor) => {
+    editor.on("change", debounce(updatePreview));
+    editor.on("change", debounce(onContentChange, 1000));
+  });
 
   updateAuth();
 }

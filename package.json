@@ -1,5 +1,6 @@
 {
   "name": "apphorde-components",
+  "main": "./server/index.mjs",
   "scripts": {
     "ci": "echo true"
   }
