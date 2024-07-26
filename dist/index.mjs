@@ -44,7 +44,8 @@ async function onSignInOrOut() {
 
   if (isAuth) {
     await AuthApi.signOut();
-    editor.setValue("");
+    jsEditor.setValue("");
+    htmlEditor.setValue("");
     updatePreview();
   } else {
     await AuthApi.signIn(true);
@@ -68,8 +69,7 @@ async function onContentChange() {
 }
 
 async function updatePreview() {
-  const value = htmlEditor.getValue();
-  preview.innerHTML = value;
+  preview.innerHTML = htmlEditor.getValue();
 }
 
 async function updateAuth() {
