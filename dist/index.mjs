@@ -38,16 +38,20 @@ async function onAddFile() {
   await updateFileContent();
 }
 
+function onReset() {
+  state = initialState();
+  jsEditor.setValue("");
+  htmlEditor.setValue("");
+  updatePreview();
+  updateFileSelector();
+}
+
 async function onSignInOrOut() {
   const isAuth = await AuthApi.isAuthenticated();
 
   if (isAuth) {
     await AuthApi.signOut();
-    state = initialState();
-    jsEditor.setValue("");
-    htmlEditor.setValue("");
-    updatePreview();
-    updateFileSelector();
+    onReset();
   } else {
     await AuthApi.signIn(true);
   }
@@ -177,6 +181,7 @@ function debounce(fn, time = 200) {
 }
 
 async function main() {
+  caasButton.onclick = updateAuth;
   auth.onclick = onSignInOrOut;
   addFile.onclick = onAddFile;
   fileSelector.onchange = onSelectFile;
@@ -184,8 +189,8 @@ async function main() {
   componentEmbed.onclick = onCopyEmbed;
   componentName.onchange = onContentChange;
 
-  AuthApi.events.addEventListener('signin', updateAuth);
-  AuthApi.events.addEventListener('signout', updateAuth);
+  AuthApi.events.addEventListener("signin", updateAuth);
+  AuthApi.events.addEventListener("signout", updateAuth);
 
   await load();
   await install("", {
