@@ -17,8 +17,7 @@ export default async function (request, response, next) {
   const { js, html, meta = {} } = source;
   const { name = 'x-invalid'} = meta;
 
-  const moduleSource = `
-  ${js}
+  const moduleSource = `${js}
 
   const template = document.createElement('template');
   template.innerHTML = ${JSON.stringify(html)}.trim();
@@ -27,8 +26,19 @@ export default async function (request, response, next) {
   customElements.get('${name}') || customElements.define('${name}', class extends HTMLElement {
     connectedCallback() {
       const tpl = template.content.cloneNode(true);
-      const shadow = this.attachShadow({mode: 'open'});
-      shadow.appendChild(tpl);
+
+      if (typeof shadowOptions !== 'undefined') {
+        const shadow = this.attachShadow(shadowOptions);
+        shadow.appendChild(tpl);
+      } else {
+        const tmp = document.createDocumentFragment();
+        for (const c in [...this.childNodes]) {
+          tmp.append(c);
+        }
+
+        this.appendChild(tpl);
+        (this.querySelector('slot') || this).appendChild(tmp);
+      }
 
       if (typeof onInit !== 'undefined') {
         onInit.apply(this);
