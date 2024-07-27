@@ -1,9 +1,5 @@
-export function createTemplate(html) {
-  const template = document.createElement("template");
-  template.innerHTML = html.trim();
-  template.normalize();
-  return template;
-}
+let currentInstance = null;
+let stack = [];
 
 export function utils(target) {
   const $ = (s) => target.querySelector(s);
@@ -12,6 +8,30 @@ export function utils(target) {
     target.dispatchEvent(new CustomEvent(event, options));
 
   return { $, $$, $emit };
+}
+
+export function defineEmits(target, list) {
+  for (const event in list) {
+    let eventHandler = null;
+
+    Object.defineProperty(target, "on" + event, {
+      enumerable: true,
+      configurable: false,
+      get() {
+        return eventHandler;
+      },
+      set(value) {
+        eventHandler = value;
+      },
+    });
+  }
+}
+
+export function createTemplate(html) {
+  const template = document.createElement("template");
+  template.innerHTML = html.trim();
+  template.normalize();
+  return template;
 }
 
 export function detachChildNodes(target) {
@@ -23,8 +43,8 @@ export function detachChildNodes(target) {
   return fragment;
 }
 
-export function onConnect(target, options) {
-  const template = options.template.content.cloneNode(true);
+export function onConnect(target, templateRef, options) {
+  const template = templateRef.content.cloneNode(true);
 
   if (options.shadow) {
     const shadow = target.attachShadow(options.shadow);
@@ -68,14 +88,62 @@ export function onDisconnect(target, options) {
   }
 }
 
-export function defineComponent(name, options) {
-  if (customElements.get(name)) return;
+const componentRegistry = new Map();
+
+export function onInit(callback) {
+  const current = stack[stack.length - 1];
+  componentRegistry.get(current).init = callback;
+}
+
+export function onDestroy(callback) {
+  const current = stack[stack.length - 1];
+  componentRegistry.get(current).destroy = callback;
+}
+
+export function onChange(callback) {
+  const current = stack[stack.length - 1];
+  componentRegistry.get(current).change = callback;
+}
+
+export function __addComponent(name) {
+  if (customElements.get(name)) {
+    throw new Error(
+      `Component ${name} was already defined! ${stack.join("->")}`
+    );
+  }
+
+  componentRegistry.set(name, {
+    name,
+    init: null,
+    destroy: null,
+    change: null,
+  });
+
+  stack.push(name);
+}
+
+export function __defineComponent(name, html) {
+  if (customElements.get(name)) {
+    throw new Error(
+      `Component ${name} was already defined! ${stack.join("->")}`
+    );
+  }
+
+  const current = stack.pop();
+  if (current !== name) {
+    throw new Error(
+      `Component stack is out of sync! Expected ${name}, got ${current} instead.`
+    );
+  }
+
+  const options = componentRegistry.get(name, options);
+  const template = createTemplate(html);
 
   customElements.define(
     name,
     class extends HTMLElement {
       connectedCallback() {
-        onConnect(this, options);
+        onConnect(this, template, options);
       }
 
       disconnectedCallback() {

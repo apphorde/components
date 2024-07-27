@@ -19,18 +19,12 @@ export default async function (request, response, next) {
   const { js, html, name = "" } = await file.json();
 
   const moduleSource = `
-import { createTemplate, defineComponent, utils } from 'https://c.apphor.de/lib.mjs';
-
+import { onInit, onDestroy, onChange, __defineComponent, __addComponent, defineEmits, utils } from 'https://c.apphor.de/lib.mjs';
+__addComponent('${name}');
 ${js}
+let __tpl=${JSON.stringify(html)};
+__defineComponent('${name}', __tpl);
 
-const __cmp__ = { template: createTemplate(${JSON.stringify(html)}) };
-
-if (typeof shadowOptions !== 'undefined') __cmp__.shadow = shadowOptions;
-if (typeof onInit !== 'undefined') __cmp__.init = onInit;
-if (typeof onChange !== 'undefined') __cmp__.change = onChange;
-if (typeof onDestroy !== 'undefined') __cmp__.destroy = onDestroy;
-
-defineComponent('${name}', __cmp__);
 `;
 
   response.setHeader("Content-Type", "application/javascript");
