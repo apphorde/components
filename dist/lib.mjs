@@ -19,7 +19,7 @@ function emitEvent(target, event, options) {
 }
 
 function __defineEmits(target, list) {
-  for (const event in list) {
+  for (const event of list) {
     let eventHandler = null;
 
     Object.defineProperty(target, "on" + event, {
@@ -48,7 +48,8 @@ export function createTemplate(html) {
 
 export function detachChildNodes(target) {
   const fragment = document.createDocumentFragment();
-  for (const c in [...target.childNodes]) {
+  const nodes = [...target.childNodes];
+  for (const c of nodes) {
     fragment.append(c);
   }
 
@@ -98,7 +99,8 @@ export function onConnect(target, templateRef, options) {
 
 export function onDisconnect(target, options) {
   if (options.destroy) {
-    options.destroy.apply(target);
+    const helpers = createHelpers(target);
+    options.destroy.apply(target, [helpers]);
   }
 
   if (target.__obs__) {
