@@ -12,10 +12,10 @@ function emitEvent(target, event, options) {
   const customEvent = new CustomEvent(event, options);
 
   if (target["on" + event]) {
-    target["on" + event](customEvent);
+    target["on" + event].apply(target, [customEvent]);
+  } else {
+    target.dispatchEvent(customEvent);
   }
-
-  target.dispatchEvent(customEvent);
 }
 
 function __defineEmits(target, list) {
