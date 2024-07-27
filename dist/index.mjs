@@ -15,13 +15,13 @@ let htmlEditor, jsEditor;
 
 function onCopyUrl() {
   navigator.clipboard.writeText(
-    `https://${location.host}/s/${state.binId}/${state.fileId}.mjs`
+    `https://${location.host}/c/${state.binId}/${state.fileId}.mjs`
   );
 }
 
 function onCopyEmbed() {
   navigator.clipboard.writeText(
-    `<script type="module" src="https://${location.host}/s/${state.binId}/${state.fileId}.mjs"></script>`
+    `<script type="module" src="https://${location.host}/c/${state.binId}/${state.fileId}.mjs"></script>`
   );
 }
 
