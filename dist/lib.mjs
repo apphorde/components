@@ -75,11 +75,11 @@ export function defineComponent(name, options) {
     name,
     class extends HTMLElement {
       connectedCallback() {
-        onConnect(this, name, options);
+        onConnect(this, options);
       }
 
       disconnectedCallback() {
-        onDisconnect(this, name, options);
+        onDisconnect(this, options);
       }
     }
   );
