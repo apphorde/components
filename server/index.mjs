@@ -19,7 +19,7 @@ export default async function (request, response, next) {
   const { js, html, name = "" } = await file.json();
 
   const moduleSource = `
-import { createTemplate, defineComponent } from 'https://c.apphor.de/lib.mjs';
+import { createTemplate, defineComponent, utils } from 'https://c.apphor.de/lib.mjs';
 
 ${js}
 

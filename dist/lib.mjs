@@ -5,14 +5,14 @@ export function createTemplate(html) {
   return template;
 }
 
-// function createHelpers(target) {
-//   const $ = (s) => target.querySelector(s);
-//   const $$ = (s) => target.querySelectorAll(s);
-//   const $emit = (event, options) =>
-//     target.dispatchEvent(new CustomEvent(event, options));
+export function utils(target) {
+  const $ = (s) => target.querySelector(s);
+  const $$ = (s) => target.querySelectorAll(s);
+  const $emit = (event, options) =>
+    target.dispatchEvent(new CustomEvent(event, options));
 
-//   return { $, $$, $emit };
-// }
+  return { $, $$, $emit };
+}
 
 export function detachChildNodes(target) {
   const fragment = document.createDocumentFragment();
