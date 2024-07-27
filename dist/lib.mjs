@@ -10,7 +10,7 @@ export function utils(target) {
   return { $, $$, $emit };
 }
 
-export function defineEmits(target, list) {
+function __defineEmits(target, list) {
   for (const event in list) {
     let eventHandler = null;
 
@@ -62,6 +62,8 @@ export function onConnect(target, templateRef, options) {
     }
   }
 
+  __defineEmits(this, options.emits);
+
   if (options.init) {
     options.init.apply(target);
   }
@@ -90,19 +92,25 @@ export function onDisconnect(target, options) {
 
 const componentRegistry = new Map();
 
-export function onInit(callback) {
+function getCurrent() {
   const current = stack[stack.length - 1];
-  componentRegistry.get(current).init = callback;
+  return componentRegistry.get(current);
+}
+
+export function onInit(callback) {
+  getCurrent().init = callback;
 }
 
 export function onDestroy(callback) {
-  const current = stack[stack.length - 1];
-  componentRegistry.get(current).destroy = callback;
+  getCurrent().destroy = callback;
 }
 
 export function onChange(callback) {
-  const current = stack[stack.length - 1];
-  componentRegistry.get(current).change = callback;
+  getCurrent().change = callback;
+}
+
+export function defineEmits(list) {
+  getCurrent().emits = list;
 }
 
 export function __addComponent(name) {
@@ -114,6 +122,7 @@ export function __addComponent(name) {
 
   componentRegistry.set(name, {
     name,
+    emits: [],
     init: null,
     destroy: null,
     change: null,
@@ -136,7 +145,7 @@ export function __defineComponent(name, html) {
     );
   }
 
-  const options = componentRegistry.get(name, options);
+  const options = componentRegistry.get(name);
   const template = createTemplate(html);
 
   customElements.define(
