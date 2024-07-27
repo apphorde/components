@@ -1,13 +1,21 @@
-let currentInstance = null;
 let stack = [];
 
-export function utils(target) {
+export function createHelpers(target) {
   const $ = (s) => target.querySelector(s);
-  const $$ = (s) => target.querySelectorAll(s);
-  const $emit = (event, options) =>
-    target.dispatchEvent(new CustomEvent(event, options));
+  const $$ = (s) => [...target.querySelectorAll(s)];
+  const $emit = emitEvent.bind(null, target);
 
-  return { $, $$, $emit };
+  return { $el: target, $, $$, $emit };
+}
+
+function emitEvent(target, event, options) {
+  const customEvent = new CustomEvent(event, options);
+
+  if (target["on" + event]) {
+    target["on" + event](customEvent);
+  }
+
+  target.dispatchEvent(customEvent);
 }
 
 function __defineEmits(target, list) {
@@ -21,6 +29,10 @@ function __defineEmits(target, list) {
         return eventHandler;
       },
       set(value) {
+        if (typeof value !== "function" && value !== null) {
+          throw new Error("Invalid value for an event handler");
+        }
+
         eventHandler = value;
       },
     });
@@ -62,16 +74,20 @@ export function onConnect(target, templateRef, options) {
     }
   }
 
-  __defineEmits(this, options.emits);
+  if (options.emits.length) {
+    __defineEmits(this, options.emits);
+  }
+
+  const helpers = createHelpers(target);
 
   if (options.init) {
-    options.init.apply(target);
+    options.init.apply(target, [helpers]);
   }
 
   if (options.change) {
     const observer = new MutationObserver(function (mutation) {
       if (mutation.type === "attributes") {
-        options.change.call(target, mutation.attributeName);
+        options.change.apply(target, [mutation.attributeName, helpers]);
       }
     });
 
