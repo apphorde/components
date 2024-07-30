@@ -19,7 +19,6 @@ createServer(async function (request, response) {
     }
 
     const json = JSON.parse(body);
-
     queue.add({
       name: json.name,
       js: json.js,
@@ -57,12 +56,7 @@ const queue = {
 
   add(item) {
     queue.all.push(item);
-
-    if (queue.running) {
-      queue.schedule();
-    } else {
-      queue.next();
-    }
+    queue.next();
   },
 
   schedule() {
@@ -107,7 +101,7 @@ const queue = {
 
       await writeFile("./main.vue", content.join("\n"), "utf-8");
       const sh = spawnSync("npm", ["run", "build"]);
-
+      console.log(sh);
       if (sh.status || !existsSync(outputFile)) {
         nextItem.response
           .writeHead(500, "Failed to build")
