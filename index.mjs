@@ -12,7 +12,7 @@ createServer(async function (request, response) {
   }
 
   try {
-    const body = await readStream(request);
+    const body = Buffer.concat(await request.toArray()).toString('utf-8');
 
     if (!body.trim()) {
       throw new Error("Invalid request body");
@@ -28,7 +28,7 @@ createServer(async function (request, response) {
     });
   } catch (error) {
     console.log(error);
-    response.writeHead(400).end("Invalid request");
+    invalidRequest(response);
   }
 });
 
@@ -38,15 +38,6 @@ function invalidRequest(response) {
 
 function notFound(response) {
   response.writeHead(404).end("Not found");
-}
-
-function readStream(stream) {
-  return new Promise((r, s) => {
-    const all = [];
-    stream.on("data", (c) => all.push(c));
-    stream.on("end", () => r(Buffer.concat(all).toString("utf8")));
-    stream.on("error", s);
-  });
 }
 
 const queue = {
@@ -115,7 +106,7 @@ const queue = {
       );
     } catch (error) {
       console.log(new Date().toISOString(), error);
-      nextItem.response.writeHead(500, "Internal error").end("");
+      nextItem.response.writeHead(500, "Internal error").end(error);
     } finally {
       queue.running = false;
       queue.schedule();
