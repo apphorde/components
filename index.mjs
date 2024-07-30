@@ -55,6 +55,7 @@ const queue = {
   running: false,
 
   add(item) {
+    console.log(item)
     queue.all.push(item);
     queue.next();
   },
@@ -65,6 +66,7 @@ const queue = {
   },
 
   async next() {
+    console.log(queue)
     if (queue.running) {
       queue.schedule();
       return;
