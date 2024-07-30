@@ -44,7 +44,7 @@ function readStream(stream) {
   return new Promise((r, s) => {
     const all = [];
     stream.on("data", (c) => all.push(c));
-    stream.on("end", () => r(Buffer.concat(all).toString('utf8')));
+    stream.on("end", () => r(Buffer.concat(all).toString("utf8")));
     stream.on("error", s);
   });
 }
@@ -101,7 +101,7 @@ const queue = {
 
       await writeFile("./main.vue", content.join("\n"), "utf-8");
       const sh = spawnSync("npm", ["run", "build"]);
-      console.log(sh);
+
       if (sh.status || !existsSync(outputFile)) {
         nextItem.response
           .writeHead(500, "Failed to build")
