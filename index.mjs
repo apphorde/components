@@ -45,7 +45,7 @@ function readStream(stream) {
   return new Promise((r, s) => {
     const all = [];
     stream.on("data", (c) => all.push(c));
-    stream.on("end", () => r(Buffer.concat(all)));
+    stream.on("end", () => r(Buffer.concat(all).toString('utf8')));
     stream.on("error", s);
   });
 }
