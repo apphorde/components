@@ -102,7 +102,7 @@ const queue = {
 
       const result = await readFile(outputFile, "utf-8");
       nextItem.response.end(
-        result.replace("__component__name__", nextItem.name)
+        result.replace(/__component__name__/g, nextItem.name)
       );
     } catch (error) {
       console.log(new Date().toISOString(), error);

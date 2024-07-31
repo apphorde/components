@@ -9,7 +9,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       external: ["vue", "@vue/.+"],
-      plugins: [postcss()],
+      plugins: [postprocess()],
       output: {
         globals: {
           vue: "Vue",
@@ -25,9 +25,9 @@ export default defineConfig({
   },
 });
 
-function postcss() {
+function postprocess() {
   return {
-    name: "yes",
+    name: "post",
     generateBundle(_a, chunks) {
       const css = chunks["style.css"]
         ? JSON.stringify(chunks["style.css"].source)
@@ -41,7 +41,7 @@ function postcss() {
       );
 
       if (css) {
-        js.code += `styles.push(${css})`;
+        js.code += `customElements.get('__component__name__').styles.push(${css})`;
       }
 
       delete chunks["style.css"];
