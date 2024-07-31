@@ -12,7 +12,7 @@ createServer(async function (request, response) {
   }
 
   try {
-    const body = Buffer.concat(await request.toArray()).toString('utf-8');
+    const body = Buffer.concat(await request.toArray()).toString("utf-8");
 
     if (!body.trim()) {
       throw new Error("Invalid request body");
@@ -24,6 +24,7 @@ createServer(async function (request, response) {
       js: json.js,
       css: json.css,
       html: json.html,
+      sfc: json.sfc,
       response,
     });
   } catch (error) {
@@ -69,47 +70,59 @@ const queue = {
     queue.running = true;
     const nextItem = queue.all.shift();
 
-    try {
-      if (!nextItem.html) {
-        throw new Error("Invalid component: no template defined.");
-      }
-
-      if (!nextItem.name || !componentNameRule.test(nextItem.name)) {
-        throw new Error("Invalid component name.");
-      }
-
-      const content = [`<template>${nextItem.html}</template>`];
-
-      if (nextItem.js) {
-        content.push(`<script setup lang="ts">${nextItem.js}</script>`);
-      }
-
-      if (nextItem.css) {
-        content.push(`<style scoped>${nextItem.css}</style>`);
-      }
-
-      const outputFile = "./dist/index.mjs";
-
-      await writeFile("./main.vue", content.join("\n"), "utf-8");
-      const sh = spawnSync("npm", ["run", "build"]);
-
-      if (sh.status || !existsSync(outputFile)) {
-        nextItem.response
-          .writeHead(500, "Failed to build")
-          .end([sh.stdout, sh.stderr].join("\n---\n"));
-        return;
-      }
-
-      const result = await readFile(outputFile, "utf-8");
-      nextItem.response.end(
-        result.replace(/__component__name__/g, nextItem.name)
-      );
-    } catch (error) {
-      console.log(new Date().toISOString(), error);
-      nextItem.response.writeHead(500, "Internal error").end(error);
-    } finally {
-      queue.running = false;
-      queue.schedule();
-    }
+    await generateComponent(nextItem);
+    queue.running = false;
+    queue.schedule();
   },
 };
+
+async function generateComponent(nextItem) {
+  try {
+    if (!nextItem.name || !componentNameRule.test(nextItem.name)) {
+      throw new Error("Invalid component name.");
+    }
+
+    const content = generateContent(nextItem);
+    const outputFile = "./dist/index.mjs";
+
+    await writeFile("./main.vue", content, "utf-8");
+    const sh = spawnSync("npm", ["run", "build"]);
+
+    if (sh.status || !existsSync(outputFile)) {
+      nextItem.response
+        .writeHead(500, "Failed to build")
+        .end([sh.stdout, sh.stderr].join("\n---\n"));
+      return;
+    }
+
+    const result = await readFile(outputFile, "utf-8");
+    nextItem.response.end(
+      result.replace(/__component__name__/g, nextItem.name)
+    );
+  } catch (error) {
+    console.log(new Date().toISOString(), error);
+    nextItem.response.writeHead(500, "Internal error").end(String(error));
+  }
+}
+
+function generateContent(nextItem) {
+  if (nextItem.sfc) {
+    return nextItem.sfc;
+  }
+
+  if (!nextItem.html) {
+    throw new Error("Invalid component: no template defined.");
+  }
+
+  const content = [`<template>${nextItem.html}</template>`];
+
+  if (nextItem.js) {
+    content.push(`<script setup lang="ts">${nextItem.js}</script>`);
+  }
+
+  if (nextItem.css) {
+    content.push(`<style scoped>${nextItem.css}</style>`);
+  }
+
+  return content.join("\n");
+}
