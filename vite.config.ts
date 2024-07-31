@@ -41,7 +41,7 @@ function postcss() {
       );
 
       if (css) {
-        js.code += `styles.push(${JSON.stringify(css)})`;
+        js.code += `styles.push(${css})`;
       }
 
       delete chunks["style.css"];
