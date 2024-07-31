@@ -35,14 +35,12 @@ function postprocess() {
 
       const js = chunks["index.mjs"];
 
-      js.code = js.code.replace(
-        'from "vue"',
-        'from "https://unpkg.com/vue@3/dist/vue.runtime.esm-browser.prod.js"'
-      );
-
-      if (css) {
-        js.code += `customElements.get('__component__name__').styles.push(${css})`;
-      }
+      js.code = js.code
+        .replace(
+          'from "vue"',
+          'from "https://unpkg.com/vue@3/dist/vue.runtime.esm-browser.prod.js"'
+        )
+        .replace("__component__styles__", css);
 
       delete chunks["style.css"];
     },
