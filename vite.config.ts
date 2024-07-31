@@ -32,6 +32,7 @@ function postcss() {
       const css = chunks["style.css"]
         ? JSON.stringify(chunks["style.css"].source)
         : "";
+
       const js = chunks["index.mjs"];
 
       js.code = js.code.replace(
@@ -40,7 +41,7 @@ function postcss() {
       );
 
       if (css) {
-        js.code += `;(() => {const s=document.createElement('style');s.type="text/css";s.innerText=${css};document.head.appendChild(s)})();`;
+        js.code += `styles.push(${JSON.stringify(css)})`;
       }
 
       delete chunks["style.css"];
