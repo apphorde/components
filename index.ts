@@ -2,7 +2,9 @@ import { defineCustomElement } from "vue";
 import main from "./main.vue";
 
 export const styles = [__component__styles__];
-export const component = defineCustomElement(main, { styles });
+Object.assign(main, { styles });
+
+export const component = defineCustomElement(main);
 export const name = "__component__name__";
 
 customElements.get(name) || customElements.define(name, component);
